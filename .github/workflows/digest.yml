@@ -1,0 +1,67 @@
+name: Weekly RF Digest
+
+on:
+  schedule:
+    # 08:00 Monday in Krasnoyarsk (UTC+7)
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to Telegram (false creates preview only)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  models: read
+
+concurrency:
+  group: weekly-rf-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Build digest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ vars.TELEGRAM_CHANNEL }}
+        shell: bash
+        run: |
+          MODE=preview
+          if [[ "${{ github.event_name }}" == "schedule" || "${{ inputs.publish }}" == "true" ]]; then
+            MODE=publish
+          fi
+          python -m rf_digest.cli --mode "$MODE"
+
+      - name: Save published state and issue archive
+        if: success()
+        shell: bash
+        run: |
+          git config user.name "rf-digest-bot"
+          git config user.email "rf-digest-bot@users.noreply.github.com"
+          git add data/state.json data/last_run.txt output/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: save digest run $(date -u +%F)"
+            git push
+          fi
