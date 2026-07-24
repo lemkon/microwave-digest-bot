@@ -1,0 +1,54 @@
+{
+  "date": "2026-07-24",
+  "items": [
+    {
+      "id": "8a7c554edcf7af79",
+      "title_ru": "Автоматизированная методика измерений полного сфера для управления лучом перенастраиваемой интеллектуальной поверхности в безэховой камере",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.21235v1",
+      "category": "Измерения"
+    },
+    {
+      "id": "8c9eea78ff69e9e0",
+      "title_ru": "Частотное мультиплексирование в магнонических волноводах",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.20102v1",
+      "category": "СВЧ-компоненты"
+    },
+    {
+      "id": "3136c71c929cce3e",
+      "title_ru": "Квантово-обеспеченные спинтронные \"малые\" антенны",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.18469v1",
+      "category": "Антенны"
+    },
+    {
+      "id": "37f44daa3e8e49ed",
+      "title_ru": "Интегрированная сверхразрешающая 3D THz-система визуализации на основе линзового безахроматического Bessel-луча и массива высокомощных осцилляторов",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.19652v1",
+      "category": "Материалы и производство"
+    },
+    {
+      "id": "6f15cd51d5cccb26",
+      "title_ru": "Роевые и эволюционные вычисления для ближнепольной локализации",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.20139v1",
+      "category": "САПР и методы"
+    },
+    {
+      "id": "dfe2323631bfe994",
+      "title_ru": "Wave2Body: переосмысление оценки позы человека на миллиметровых волнах как преобразование радарных сигналов в токены тела",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.18875v1",
+      "category": "Измерения"
+    },
+    {
+      "id": "cf9d7af217fd6dd8",
+      "title_ru": "Гибкая интеллектуальная метаповерхность для интегрированных систем связи и обнаружения: оптимизация справедливости пользователей и оценка производительности",
+      "source": "arXiv — RF, antennas and microwave engineering",
+      "url": "https://arxiv.org/abs/2607.18893v1",
+      "category": "Антенны"
+    }
+  ]
+}
