@@ -3,7 +3,7 @@ lookback_days: 8
 http_timeout_seconds: 25
 min_digest_items: 3
 max_digest_items: 10
-max_candidates_for_editor: 28
+max_candidates_for_editor: 10
 minimum_prefilter_score: 2.0
 github_model: openai/gpt-4.1-mini
 

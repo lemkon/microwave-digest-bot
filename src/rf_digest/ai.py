@@ -24,9 +24,9 @@ def _candidate_payload(article: Article) -> dict[str, Any]:
         "source": article.source,
         "published_at": article.published_at.astimezone(UTC).date().isoformat() if article.published_at else None,
         "title": article.title,
-        "description": article.summary,
+        "description": " ".join(article.summary.split())[:600],
         "prefilter_score": round(article.score, 2),
-        "matched_keywords": article.matched_keywords,
+        "matched_keywords": article.matched_keywords[:12],
     }
 
 
@@ -57,6 +57,9 @@ def create_digest(candidates: list[Article], config: dict[str, Any]) -> Digest:
     max_items = int(config.get("max_digest_items", 10))
     min_items = int(config.get("min_digest_items", 3))
     model = os.getenv("GITHUB_MODEL", str(config.get("github_model", "openai/gpt-4.1-mini")))
+    # Keep the free GitHub Models request compact enough to avoid HTTP 413.
+    candidates = candidates[:10]
+
     user_prompt = {
         "task": (
             f"Select {min_items} to {max_items} strongest items. "
@@ -75,7 +78,7 @@ def create_digest(candidates: list[Article], config: dict[str, Any]) -> Digest:
             {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False)},
         ],
         "temperature": 0.15,
-        "max_tokens": 4200,
+        "max_tokens": 2600,
         "response_format": {"type": "json_object"},
     }
     response = requests.post(
