@@ -37,8 +37,16 @@ def main() -> None:
     LOGGER.info("Prepared %d candidates for the editor", len(candidates))
 
     minimum = int(config.get("min_digest_items", 3))
+    if not candidates:
+        raise RuntimeError("No relevant candidates passed the prefilter")
     if len(candidates) < minimum:
-        raise RuntimeError(f"Only {len(candidates)} candidates passed prefilter; need at least {minimum}")
+        LOGGER.warning(
+            "Only %d candidates passed the prefilter; building a shorter digest instead of failing",
+            len(candidates),
+        )
+        config = dict(config)
+        config["min_digest_items"] = len(candidates)
+        config["max_digest_items"] = min(int(config.get("max_digest_items", 10)), len(candidates))
 
     digest = create_digest(candidates, config)
     now = datetime.now(UTC)

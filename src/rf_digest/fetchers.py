@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import time
 from datetime import UTC, datetime, timedelta
 from email.utils import parsedate_to_datetime
 from typing import Any
@@ -15,7 +16,7 @@ from dateutil import parser as date_parser
 from .models import Article
 
 LOGGER = logging.getLogger(__name__)
-USER_AGENT = "rf-digest-bot/0.1 (+https://github.com/)"
+USER_AGENT = "Mozilla/5.0 (compatible; rf-digest-bot/0.2; +https://github.com/)"
 
 
 def _clean_text(value: str | None, max_chars: int = 1800) -> str:
@@ -61,20 +62,28 @@ def _parse_date(entry: Any) -> datetime | None:
     return None
 
 
-def _fetch_feed(url: str, timeout: int) -> feedparser.FeedParserDict:
-    response = requests.get(
-        url,
-        timeout=timeout,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*"},
-    )
-    response.raise_for_status()
-    return feedparser.parse(response.content)
+def _fetch_feed(url: str, timeout: int, attempts: int = 3) -> feedparser.FeedParserDict:
+    last_error: Exception | None = None
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+    }
+    for attempt in range(1, attempts + 1):
+        try:
+            response = requests.get(url, timeout=timeout, headers=headers)
+            response.raise_for_status()
+            return feedparser.parse(response.content)
+        except (requests.RequestException, OSError) as exc:
+            last_error = exc
+            if attempt < attempts:
+                delay = 2 ** (attempt - 1)
+                LOGGER.warning("Fetch attempt %d/%d failed for %s: %s; retrying in %ds", attempt, attempts, url, exc, delay)
+                time.sleep(delay)
+    assert last_error is not None
+    raise last_error
 
 
-def fetch_rss_source(source: dict[str, Any], cutoff: datetime, timeout: int) -> list[Article]:
-    name = str(source["name"])
-    url = str(source["url"])
-    parsed = _fetch_feed(url, timeout)
+def _articles_from_feed(parsed: feedparser.FeedParserDict, name: str, cutoff: datetime) -> list[Article]:
     if parsed.bozo and not parsed.entries:
         raise RuntimeError(f"Invalid feed from {name}: {parsed.bozo_exception}")
 
@@ -88,43 +97,9 @@ def fetch_rss_source(source: dict[str, Any], cutoff: datetime, timeout: int) -> 
         if published and published < cutoff:
             continue
         content = entry.get("content") or [{}]
-        summary = _clean_text(entry.get("summary") or entry.get("description") or content[0].get("value"))
-        articles.append(
-            Article(
-                id=_article_id(link, title),
-                title=title,
-                summary=summary,
-                url=_canonical_url(link),
-                source=name,
-                published_at=published,
-            )
-        )
-    return articles
-
-
-def fetch_arxiv_source(source: dict[str, Any], cutoff: datetime, timeout: int) -> list[Article]:
-    name = str(source.get("name", "arXiv"))
-    query = str(source["query"])
-    max_results = int(source.get("max_results", 100))
-    encoded_query = quote_plus(query, safe=':"()')
-    url = (
-        "https://export.arxiv.org/api/query"
-        f"?search_query={encoded_query}&start=0&max_results={max_results}"
-        "&sortBy=submittedDate&sortOrder=descending"
-    )
-    parsed = _fetch_feed(url, timeout)
-    articles: list[Article] = []
-    for entry in parsed.entries:
-        link = str(entry.get("link") or "").strip()
-        title = _clean_text(entry.get("title"), 400)
-        if not link or not title:
-            continue
-        published = _parse_date(entry)
-        if published and published < cutoff:
-            continue
-        summary = _clean_text(entry.get("summary"), 2200)
+        summary = _clean_text(entry.get("summary") or entry.get("description") or content[0].get("value"), 2200)
         authors = ", ".join(a.get("name", "") for a in entry.get("authors", []) if a.get("name"))
-        if authors:
+        if authors and not summary.lower().startswith("authors:"):
             summary = f"Authors: {authors}. {summary}"
         articles.append(
             Article(
@@ -139,10 +114,39 @@ def fetch_arxiv_source(source: dict[str, Any], cutoff: datetime, timeout: int) -
     return articles
 
 
+def fetch_rss_source(source: dict[str, Any], cutoff: datetime, timeout: int) -> list[Article]:
+    name = str(source["name"])
+    url = str(source["url"])
+    parsed = _fetch_feed(url, timeout)
+    return _articles_from_feed(parsed, name, cutoff)
+
+
+def fetch_arxiv_source(source: dict[str, Any], cutoff: datetime, timeout: int) -> list[Article]:
+    name = str(source.get("name", "arXiv"))
+    query = str(source["query"])
+    max_results = int(source.get("max_results", 50))
+    encoded_query = quote_plus(query, safe=':"()')
+    url = (
+        "https://export.arxiv.org/api/query"
+        f"?search_query={encoded_query}&start=0&max_results={max_results}"
+        "&sortBy=submittedDate&sortOrder=descending"
+    )
+    try:
+        parsed = _fetch_feed(url, max(timeout, 60), attempts=3)
+        return _articles_from_feed(parsed, name, cutoff)
+    except Exception as exc:
+        fallback_url = str(source.get("fallback_rss_url") or "").strip()
+        if not fallback_url:
+            raise
+        LOGGER.warning("arXiv search API failed: %s; using official category RSS fallback", exc)
+        parsed = _fetch_feed(fallback_url, max(timeout, 45), attempts=3)
+        return _articles_from_feed(parsed, f"{name} — RSS fallback", cutoff)
+
+
 def fetch_all(config: dict[str, Any]) -> list[Article]:
     days = int(config.get("lookback_days", 8))
     cutoff = datetime.now(UTC) - timedelta(days=days)
-    timeout = int(config.get("http_timeout_seconds", 25))
+    timeout = int(config.get("http_timeout_seconds", 60))
     result: list[Article] = []
 
     for source in config.get("sources", []):

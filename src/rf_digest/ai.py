@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from datetime import UTC
 from typing import Any
@@ -10,6 +11,7 @@ import requests
 from .models import Article, Digest, DigestItem
 
 ENDPOINT = "https://models.github.ai/inference/chat/completions"
+LOGGER = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are the editor of a Russian-language professional weekly digest for microwave, RF and antenna engineers.
 Select only technically meaningful items. Avoid marketing announcements unless they contain a concrete engineering result.
@@ -18,13 +20,14 @@ Write fluent Russian for an expert audience. Keep standard abbreviations such as
 Return a single JSON object and no markdown."""
 
 
-def _candidate_payload(article: Article) -> dict[str, Any]:
+def _candidate_payload(article: Article, description_chars: int) -> dict[str, Any]:
+    description = " ".join(article.summary.split())[:description_chars]
     return {
         "id": article.id,
-        "source": article.source,
+        "source": article.source[:160],
         "published_at": article.published_at.astimezone(UTC).date().isoformat() if article.published_at else None,
-        "title": article.title,
-        "description": " ".join(article.summary.split())[:600],
+        "title": article.title[:320],
+        "description": description,
         "prefilter_score": round(article.score, 2),
         "matched_keywords": article.matched_keywords[:12],
     }
@@ -49,39 +52,39 @@ def _extract_json(text: str) -> dict[str, Any]:
     return parsed
 
 
-def create_digest(candidates: list[Article], config: dict[str, Any]) -> Digest:
-    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_MODELS_TOKEN")
-    if not token:
-        raise RuntimeError("GITHUB_TOKEN or GH_MODELS_TOKEN is required")
-
-    max_items = int(config.get("max_digest_items", 10))
-    min_items = int(config.get("min_digest_items", 3))
-    model = os.getenv("GITHUB_MODEL", str(config.get("github_model", "openai/gpt-4.1-mini")))
-    # Keep the free GitHub Models request compact enough to avoid HTTP 413.
-    candidates = candidates[:10]
-
+def _request_digest(
+    candidates: list[Article],
+    *,
+    token: str,
+    model: str,
+    min_items: int,
+    max_items: int,
+    description_chars: int,
+    max_tokens: int,
+) -> requests.Response:
+    effective_max = min(max_items, len(candidates))
     user_prompt = {
         "task": (
-            f"Select {min_items} to {max_items} strongest items. "
+            f"Select {min_items} to {effective_max} strongest items. "
             "Return fields: intro_ru and items. Each item must contain only id, title_ru, summary_ru, "
             "why_it_matters_ru and category. category must be one of: Антенны, СВЧ-компоненты, "
             "Измерения, Спутниковая связь, Радиолокация, Полупроводники, Материалы и производство, "
             "САПР и методы, Наука. summary_ru: 1-2 factual sentences. why_it_matters_ru: 1 concise sentence. "
             "Do not repeat items and do not return URLs. Prefer primary research and concrete specifications."
         ),
-        "candidates": [_candidate_payload(a) for a in candidates],
+        "candidates": [_candidate_payload(a, description_chars) for a in candidates],
     }
     payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False)},
+            {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False, separators=(",", ":"))},
         ],
         "temperature": 0.15,
-        "max_tokens": 2600,
+        "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
     }
-    response = requests.post(
+    return requests.post(
         ENDPOINT,
         headers={
             "Authorization": f"Bearer {token}",
@@ -91,12 +94,64 @@ def create_digest(candidates: list[Article], config: dict[str, Any]) -> Digest:
         json=payload,
         timeout=120,
     )
+
+
+def create_digest(candidates: list[Article], config: dict[str, Any]) -> Digest:
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_MODELS_TOKEN")
+    if not token:
+        raise RuntimeError("GITHUB_TOKEN or GH_MODELS_TOKEN is required")
+
+    max_items = min(int(config.get("max_digest_items", 10)), len(candidates))
+    min_items = min(int(config.get("min_digest_items", 3)), len(candidates))
+    model = os.getenv("GITHUB_MODEL", str(config.get("github_model", "openai/gpt-4.1-mini")))
+    editor_limit = max(min_items, int(config.get("max_candidates_for_editor", 10)))
+    available = candidates[:editor_limit]
+
+    # Free GitHub Models endpoints can enforce a request-size limit smaller than
+    # the model context window. Retry only HTTP 413 with increasingly compact input.
+    attempts = [
+        (min(len(available), 10), int(config.get("editor_summary_chars", 600)), 2600),
+        (min(len(available), 8), 380, 2200),
+        (min(len(available), 6), 240, 1800),
+    ]
+
+    response: requests.Response | None = None
+    sent_candidates: list[Article] = []
+    seen_attempts: set[tuple[int, int, int]] = set()
+
+    for count, description_chars, max_tokens in attempts:
+        attempt = (count, description_chars, max_tokens)
+        if count < min_items or attempt in seen_attempts:
+            continue
+        seen_attempts.add(attempt)
+        sent_candidates = available[:count]
+        LOGGER.info(
+            "Calling GitHub Models with %d candidates, summaries up to %d chars",
+            len(sent_candidates),
+            description_chars,
+        )
+        response = _request_digest(
+            sent_candidates,
+            token=token,
+            model=model,
+            min_items=min_items,
+            max_items=max_items,
+            description_chars=description_chars,
+            max_tokens=max_tokens,
+        )
+        if response.status_code != 413:
+            break
+        LOGGER.warning("GitHub Models returned HTTP 413; retrying with a smaller payload")
+
+    if response is None:
+        raise RuntimeError("Could not prepare a valid GitHub Models request")
     response.raise_for_status()
+
     body = response.json()
     content = body["choices"][0]["message"]["content"]
     edited = _extract_json(content)
 
-    by_id = {a.id: a for a in candidates}
+    by_id = {a.id: a for a in sent_candidates}
     digest_items: list[DigestItem] = []
     used: set[str] = set()
     for raw in edited.get("items", []):

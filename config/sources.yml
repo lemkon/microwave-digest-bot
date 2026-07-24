@@ -1,9 +1,10 @@
 # The MVP deliberately uses only free/open feeds and the arXiv API.
 lookback_days: 8
-http_timeout_seconds: 25
+http_timeout_seconds: 60
 min_digest_items: 3
 max_digest_items: 10
 max_candidates_for_editor: 10
+editor_summary_chars: 600
 minimum_prefilter_score: 2.0
 github_model: openai/gpt-4.1-mini
 
@@ -11,22 +12,22 @@ sources:
   - name: Microwave Journal — Industry News
     type: rss
     url: https://www.microwavejournal.com/rss/2
-    enabled: true
+    enabled: false
 
   - name: Microwave Journal — Technical Articles
     type: rss
     url: https://www.microwavejournal.com/rss/topic/3914-technical-articles
-    enabled: true
+    enabled: false
 
   - name: Microwave Journal — Test & Measurement
     type: rss
     url: https://www.microwavejournal.com/rss/topic/3449-test-measurement-channel-leading-manufacturer-news-articles-content
-    enabled: true
+    enabled: false
 
   - name: Microwave Journal — RF & Microwave News
     type: rss
     url: https://www.microwavejournal.com/rss/topic/3369-rf-microwave-industry-news
-    enabled: true
+    enabled: false
 
   - name: ESA — Space Engineering & Technology
     type: rss
@@ -43,10 +44,11 @@ sources:
     url: https://www.nasa.gov/technology/feed/
     enabled: true
 
-  - name: arXiv
+  - name: arXiv — RF, antennas and microwave engineering
     type: arxiv
-    query: '(all:"antenna" OR all:"microwave" OR all:"millimeter wave" OR all:"millimetre wave" OR all:"metasurface" OR all:"reflectarray" OR all:"phased array" OR all:"radio frequency")'
-    max_results: 100
+    query: '(all:"antenna" OR all:"microwave" OR all:"millimeter wave" OR all:"metasurface" OR all:"reflectarray" OR all:"phased array" OR all:"waveguide")'
+    max_results: 50
+    fallback_rss_url: https://rss.arxiv.org/rss/eess.SP+physics.app-ph+physics.ins-det+physics.optics+cs.IT
     enabled: true
 
 keyword_weights:
