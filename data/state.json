@@ -1,4 +1,28 @@
 {
-  "seen_ids": [],
-  "issues": []
+  "seen_ids": [
+    "8a7c554edcf7af79",
+    "8c9eea78ff69e9e0",
+    "3136c71c929cce3e",
+    "6f15cd51d5cccb26",
+    "37f44daa3e8e49ed",
+    "dfe2323631bfe994",
+    "817dac0aefac340f",
+    "1014460c9132ec55"
+  ],
+  "issues": [
+    {
+      "published_at": "2026-07-24T18:04:02.732232+00:00",
+      "article_ids": [
+        "8a7c554edcf7af79",
+        "8c9eea78ff69e9e0",
+        "3136c71c929cce3e",
+        "6f15cd51d5cccb26",
+        "37f44daa3e8e49ed",
+        "dfe2323631bfe994",
+        "817dac0aefac340f",
+        "1014460c9132ec55"
+      ],
+      "issue_file": "output/digest-2026-07-24.md"
+    }
+  ]
 }
