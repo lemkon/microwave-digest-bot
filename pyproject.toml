@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rf-digest-bot"
+version = "0.1.0"
+description = "Free weekly Russian-language RF and microwave news digest for Telegram"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "beautifulsoup4>=4.12,<5",
+  "feedparser>=6.0,<7",
+  "python-dateutil>=2.9,<3",
+  "PyYAML>=6.0,<7",
+  "rapidfuzz>=3.9,<4",
+  "requests>=2.32,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[project.scripts]
+rf-digest = "rf_digest.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

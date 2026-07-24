@@ -1,0 +1,106 @@
+# The MVP deliberately uses only free/open feeds and the arXiv API.
+lookback_days: 8
+http_timeout_seconds: 25
+min_digest_items: 3
+max_digest_items: 10
+max_candidates_for_editor: 28
+minimum_prefilter_score: 2.0
+github_model: openai/gpt-4.1-mini
+
+sources:
+  - name: Microwave Journal — Industry News
+    type: rss
+    url: https://www.microwavejournal.com/rss/2
+    enabled: true
+
+  - name: Microwave Journal — Technical Articles
+    type: rss
+    url: https://www.microwavejournal.com/rss/topic/3914-technical-articles
+    enabled: true
+
+  - name: Microwave Journal — Test & Measurement
+    type: rss
+    url: https://www.microwavejournal.com/rss/topic/3449-test-measurement-channel-leading-manufacturer-news-articles-content
+    enabled: true
+
+  - name: Microwave Journal — RF & Microwave News
+    type: rss
+    url: https://www.microwavejournal.com/rss/topic/3369-rf-microwave-industry-news
+    enabled: true
+
+  - name: ESA — Space Engineering & Technology
+    type: rss
+    url: https://www.esa.int/rssfeed/Our_Activities/Space_Engineering_Technology
+    enabled: true
+
+  - name: ESA — Telecommunications
+    type: rss
+    url: https://www.esa.int/rssfeed/Our_Activities/Telecommunications_Integrated_Applications
+    enabled: true
+
+  - name: NASA — Technology
+    type: rss
+    url: https://www.nasa.gov/technology/feed/
+    enabled: true
+
+  - name: arXiv
+    type: arxiv
+    query: '(all:"antenna" OR all:"microwave" OR all:"millimeter wave" OR all:"millimetre wave" OR all:"metasurface" OR all:"reflectarray" OR all:"phased array" OR all:"radio frequency")'
+    max_results: 100
+    enabled: true
+
+keyword_weights:
+  antenna: 3.0
+  antennas: 3.0
+  антенн: 3.0
+  microwave: 2.5
+  RF: 1.2
+  millimeter-wave: 2.5
+  mmwave: 2.5
+  sub-THz: 3.0
+  terahertz: 2.5
+  phased array: 3.5
+  beamforming: 2.5
+  reflectarray: 4.0
+  transmitarray: 4.0
+  metasurface: 3.5
+  RIS: 2.0
+  radome: 3.0
+  feed horn: 4.0
+  horn antenna: 4.0
+  OMT: 4.0
+  orthomode: 4.0
+  polarizer: 3.5
+  waveguide: 3.0
+  resonator: 2.0
+  filter: 1.5
+  diplexer: 3.0
+  multiplexer: 2.5
+  MMIC: 2.5
+  RFIC: 2.5
+  LNA: 2.0
+  power amplifier: 2.0
+  near-field: 4.0
+  far-field: 3.0
+  NF-FF: 4.5
+  measurement: 1.5
+  calibration: 2.0
+  anechoic: 3.0
+  radar: 2.0
+  satellite communication: 3.0
+  satcom: 3.0
+  6G: 1.5
+  Ka-band: 3.5
+  Ku-band: 3.0
+  E-band: 3.5
+  additive manufacturing: 2.5
+
+negative_weights:
+  webinar: 1.5
+  sponsored: 3.0
+  giveaway: 5.0
+  discount: 5.0
+  stock price: 5.0
+  investor: 3.0
+  hiring: 2.0
+  vacancy: 2.0
