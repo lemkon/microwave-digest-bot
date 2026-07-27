@@ -1,61 +1,61 @@
 {
-  "date": "2026-07-24",
+  "date": "2026-07-27",
   "items": [
     {
-      "id": "8a7c554edcf7af79",
-      "title_ru": "Автоматизированная методика измерений полного сферического диаграммы направленности для интеллектуальных поверхностей в безэховой камере",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.21235v1",
-      "category": "Измерения"
+      "id": "e99e10c457c494d5",
+      "title_ru": "PHY-аутентификация для Ambient IoT в системах XL-MIMO с обратным рассеянием в ближнем поле",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.22134",
+      "category": "Антенны"
     },
     {
-      "id": "8c9eea78ff69e9e0",
-      "title_ru": "Частотное мультиплексирование в магнонных волноводах",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.20102v1",
+      "id": "4314b0ca76a2556a",
+      "title_ru": "Линейные аналоговые СВЧ-вычислители для коммуникаций: возможности и вызовы",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.22509",
       "category": "СВЧ-компоненты"
     },
     {
-      "id": "3136c71c929cce3e",
-      "title_ru": "Квантово-обеспеченные спинтронные миниатюрные антенны",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.18469v1",
-      "category": "Антенны"
+      "id": "f38db427f980ee62",
+      "title_ru": "Непрерывное отслеживание фазового шума внутри символа для THz OFDM с помощью полиномиальной реконструкции",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.22111",
+      "category": "СВЧ-компоненты"
     },
     {
-      "id": "6f15cd51d5cccb26",
-      "title_ru": "Роевые и эволюционные вычисления для ближнепольной локализации",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.20139v1",
-      "category": "САПР и методы"
-    },
-    {
-      "id": "37f44daa3e8e49ed",
-      "title_ru": "Интегрированная сверхразрешающая 3D THz-система на основе ахроматической свободной формы и массива излучателей",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.19652v1",
-      "category": "Материалы и производство"
-    },
-    {
-      "id": "dfe2323631bfe994",
-      "title_ru": "Wave2Body: переосмысление оценки позы человека в миллиметровом диапазоне как преобразование радарных данных в токены тела",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.18875v1",
+      "id": "d2d664118478b93c",
+      "title_ru": "Выборка ближнего поля для линейных источников",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.20701",
       "category": "Измерения"
     },
     {
-      "id": "817dac0aefac340f",
-      "title_ru": "Множественный доступ с ограничением по отказам для систем с щипковыми антеннами",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.18738v1",
+      "id": "a2582ddd13d2f090",
+      "title_ru": "Лазер на основе электромагнитно индуцированной прозрачности в распределённой системе резонансной обратной связи",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.15783",
+      "category": "СВЧ-компоненты"
+    },
+    {
+      "id": "25153acc1956e485",
+      "title_ru": "Широкополосный MU-MIMO OFDM без базовой полосы с использованием каскадированных интеллектуальных метаповерхностей",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.21900",
       "category": "Антенны"
     },
     {
-      "id": "1014460c9132ec55",
-      "title_ru": "Характеристика отклика международной станции LOFAR",
-      "source": "arXiv — RF, antennas and microwave engineering",
-      "url": "https://arxiv.org/abs/2607.19585v1",
-      "category": "Антенны"
+      "id": "28db7da8f9c821ec",
+      "title_ru": "Нелинейная метаповерхность с управлением полем: самонастраиваемый переход между селективной пропускной способностью и широкополосным экранированием",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.22144",
+      "category": "Материалы и производство"
+    },
+    {
+      "id": "3aabd7d38c7ef94b",
+      "title_ru": "Учет неопределённости для устойчивого распределённого радиолокационного зондирования",
+      "source": "arXiv — RF, antennas and microwave engineering — RSS fallback",
+      "url": "https://arxiv.org/abs/2607.22357",
+      "category": "Радиолокация"
     }
   ]
 }

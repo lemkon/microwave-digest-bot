@@ -7,7 +7,15 @@
     "37f44daa3e8e49ed",
     "dfe2323631bfe994",
     "817dac0aefac340f",
-    "1014460c9132ec55"
+    "1014460c9132ec55",
+    "e99e10c457c494d5",
+    "4314b0ca76a2556a",
+    "f38db427f980ee62",
+    "d2d664118478b93c",
+    "a2582ddd13d2f090",
+    "25153acc1956e485",
+    "28db7da8f9c821ec",
+    "3aabd7d38c7ef94b"
   ],
   "issues": [
     {
@@ -23,6 +31,20 @@
         "1014460c9132ec55"
       ],
       "issue_file": "output/digest-2026-07-24.md"
+    },
+    {
+      "published_at": "2026-07-27T04:30:56.042238+00:00",
+      "article_ids": [
+        "e99e10c457c494d5",
+        "4314b0ca76a2556a",
+        "f38db427f980ee62",
+        "d2d664118478b93c",
+        "a2582ddd13d2f090",
+        "25153acc1956e485",
+        "28db7da8f9c821ec",
+        "3aabd7d38c7ef94b"
+      ],
+      "issue_file": "output/digest-2026-07-27.md"
     }
   ]
 }
